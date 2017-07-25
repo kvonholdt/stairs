@@ -5,6 +5,8 @@ import sqlite3
 import sys
 import time
 import thread
+import requests
+import json
 
 from collections import namedtuple
 from datetime import datetime
@@ -23,6 +25,9 @@ LED_BRIGHTNESS = 120
 LED_INVERT     = True
 LED_CHANNEL    = 0
 LED_STRIP      = ws.WS2812_STRIP
+
+type = 'stairs'
+url = 'http://srvgvm18.offis.uni-oldenburg.de:8443/entry'
 
 class Database(object):
     '''
@@ -79,18 +84,19 @@ def main():
         no_motion = True
         while True:
             if pir.motion_detected:
-                print('motion')
-                timestamp = int(datetime.now().strftime('%s')) * 1000
-                if not no_motion:
+                if no_motion:
+                    no_motion=False
+                    timestamp = int(datetime.now().strftime('%s')) * 1000
+                    payload = {'timestamp': timestamp, 'count': 1, 'type': type}
+                    r = requests.post(url, json=payload)
                     time.sleep(.2)
-                    continue
-                no_motion = False
-                if DEBUG:
-                    writer.writerow([timestamp])
-                else:
-                    db.save_entry(timestamp)
-                #running_light(strip, Color(255, 0, 0))
-                thread.start_new_thread( running_light, (strip, Color(255, 0, 0)))
+                    if DEBUG:
+                        writer.writerow([timestamp])
+                    else:
+                        db.save_entry(timestamp)
+                    #running_light(strip, Color(255, 0, 0))
+                    thread.start_new_thread( running_light, (strip, Color(255, 0, 0)))
+                no_motion=False
             else:
                 print('none')
                 no_motion = True
