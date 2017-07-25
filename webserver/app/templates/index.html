@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+		<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+$(document).ready(function() {
+    var get_parameter_by_name = function(name, url) {
+        if (!url) {
+            url = window.location.href;
+        }
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    };
+
+
+    $('#exercise_btn').click(function() {
+        document.location.href = '/exercise?token=' + get_parameter_by_name('token');
+    });
+
+    var show_progress = function(progress_json) {
+    	console.log('success');
+    	console.log(progress_json);
+        $('#progress').text(progress_json.length);
+    };
+
+    $.getJSON('/entries_by_type?type=stairs', show_progress);
+});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header clearfix">
+				<h2 class="text-muted text-center">Fortschritt</h2>
+			</div>
+			<div class="jumbotron" id="emojitron">
+                            <div class="text-center">
+                                Aktueller Fortschritt: <span id="progress"></span>
+                            </div>
+			</div>
+		</div>
+	</body>
+</html>

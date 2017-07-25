@@ -1,0 +1,76 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+		<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+$(document).ready(function() {
+    var get_parameter_by_name = function(name, url) {
+        if (!url) {
+            url = window.location.href;
+        }
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    };
+
+    $('#exercise_btn').click(function() {
+        console.log('button clicked');
+        $.ajax({
+            type: 'POST',
+            url: '/exercise?token=' + get_parameter_by_name('token'),
+            data: JSON.stringify({
+                'exercise': {
+                    'id': '{{ exercise.id }}',
+                },
+            }),
+            success: function() {
+                document.location.href = '/?token=' + get_parameter_by_name('token');
+            },
+        });
+    });
+
+    $('#next_btn').click(function() {
+        document.location.reload();
+    });
+
+    $('#cancel_btn').click(function() {
+        document.location.href = '/?token=' + get_parameter_by_name('token');
+    });
+});
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="header clearfix">
+                            <h2 class="text-muted text-center">Übungen für heute: {{ exercise.name }}</h2>
+			</div>
+			<div class="jumbotron" id="exercisetron">
+                                <div class="text-center">
+				    <figure class="figure" id="exercise_figure">
+                                        <img id="exercise_img" src="{{ url_for('static', filename=exercise.image) }}" class="figure-img" height="70%">
+				    	<figcaption id="exercise_cap" class="figure-caption">
+                                            {{ exercise.name }}
+                                        </figcaption>
+				    </figure>
+                                    <div class="row">
+                                        <div class="col-xs-4">
+                                            <button class="btn btn-success btn-block" id="exercise_btn"><span class="glyphicon glyphicon-ok"></span> Erledigt</button>
+                                        </div>
+                                        <div class="col-xs-4">
+                                            <button class="btn btn-info btn-block" id="next_btn"><span class="glyphicon glyphicon-refresh"></span>
+                                                Andere Übung</button>
+                                        </div>
+                                        <div class="col-xs-4">
+                                            <button class="btn btn-default btn-block" id="cancel_btn"><span class="glyphicon glyphicon-remove"></span>
+                                                Abbrechen</button>
+                                        </div>
+                                    </div>
+                                </div>
+			</div>
+		</div>
+	</body>
+</html>

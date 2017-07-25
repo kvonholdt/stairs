@@ -1,0 +1,13 @@
+[Unit]
+Description=Webserver Component for ActiStairs
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=kvonholdt
+WorkingDirectory=/var/local/actistairs
+ExecStart=/usr/bin/authbind --deep /var/local/actistairs/env/bin/python /var/local/actiwait/run.py
+Restart=on-abort
+
+[Install]
+WantedBy=default.target
