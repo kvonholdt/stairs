@@ -25,10 +25,9 @@ def index():
 @app.route('/entry', methods=['GET', 'POST'])
 def entry():
     if request.method == 'POST':
-        entries_json = json.loads(request.data.decode('utf-8'))
-        entries = map(lambda entry_json: db.Entry(timestamp=int(entry_json['timestamp']), count=int(entry_json['count']),
-                                                  type=entry_json['type']), entries_json)
-        db.merge_many(entries)
+        entry_json = json.loads(request.data.decode('utf-8'))
+        entry = db.Entry(timestamp=int(entry_json['timestamp']), count=int(entry_json['count']), type=entry_json['type'])
+        db.merge(entry)
         return 'ok'
     else:
         return json.dumps(list(map(lambda entry: entry.as_dict(), db.all(db.Entry))))
