@@ -73,7 +73,7 @@ def main():
     strip.begin()
     logging.basicConfig(filename='stairs.log', level=logging.INFO, format='%(asctime)s %(name)-15s %(levelname)-8s %(processName)-10s %(message)s')
     logging.info('start scanning')
-	pir = MotionSensor(4)
+    pir = MotionSensor(4)
     output = None
     if DEBUG:
         output = open(name='stairs.csv', mode='w', buffering=0)
@@ -85,16 +85,16 @@ def main():
         no_motion = True
         while True:
             pir.wait_for_motion()
-			timestamp = int(datetime.now().strftime('%s')) * 1000
-			payload = {'timestamp': timestamp, 'count': 1, 'type': type}
-			r = requests.post(url, json=payload)
+            timestamp = int(datetime.now().strftime('%s')) * 1000
+            payload = {'timestamp': timestamp, 'count': 1, 'type': type}
+            r = requests.post(url, json=payload)
             pir.wait_for_no_motion()
             if DEBUG:
                 writer.writerow([timestamp])
             else:
-                db.save_entry(timestamp)
-			if LIGHT:
-                thread.start_new_thread( running_light, (strip, Color(255, 0, 0)))
+                db.save_entry(timestamp, 1)
+                if LIGHT:
+                    thread.start_new_thread( running_light, (strip, Color(255, 0, 0)))
     except KeyboardInterrupt:
         logging.info('closing scanner...')
         if output:
