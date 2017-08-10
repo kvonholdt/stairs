@@ -103,8 +103,14 @@ def main():
     first_pir = MotionSensor(4)
     second_pir = MotionSensor(17)
     print'starting socket'
-    s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    s.connect((HOST,PORT))
+    while True:
+        try:
+            s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            s.connect((HOST,PORT))
+            break
+        except socket.error,e:
+            print str(e)
+            time.sleep(2)
     output = None
     if DEBUG:
         output = open(name='stairs.csv', mode='w', buffering=0)
@@ -125,6 +131,7 @@ def main():
                         payload = "|".join([str(timestamp), '1', type])
                         try:
                             s.send(payload)
+                            print'payload sent'
                         except socket.error:
                             print'host not reachable, saving locally'
                             db.save_entry(timestamp, 1)
