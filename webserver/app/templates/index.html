@@ -4,25 +4,10 @@
 		<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 		<script type="text/javascript">
+        
 $(document).ready(function() {
     const goal = 260;
     const interval = 2000
-    var get_parameter_by_name = function(name, url) {
-        if (!url) {
-            url = window.location.href;
-        }
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    };
-
-
-    $('#exercise_btn').click(function() {
-        document.location.href = '/exercise?token=' + get_parameter_by_name('token');
-    });
 
     var show_progress = function(progress_json) {
     	console.log('success');
@@ -43,20 +28,81 @@ $(document).ready(function() {
     }
 });
 		</script>
+        <style>
+        #progresstron {
+            font-size: 32px;
+        }
+		#progress {
+        	width: 34.5%;
+            color:black;
+            height: 30px;
+            font-size: 22px;
+            padding-top: 6px;
+            background-color: #ffd200;            
+        }
+        #progress-bar {
+            border-style: solid;
+            border-width: 2px;
+            border-color: #ffd200;
+            height: 32px;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            box-shadow: #000000;
+        }
+        #header{
+        	padding-top: 10px;
+        	padding-bottom: 10px;
+        }
+        #infotron{
+            background-size: cover;
+            padding: 10px;
+        }
+        #infoblock{        	
+            padding-left:0px;
+        }
+        #datatron{
+            background-size: cover;
+            padding: 10px;;
+        }
+        #datablock{        	
+            padding-right:0px;
+        }
+        img {
+    		width: 830px;
+            height: 130px;
+            display: block;
+    		margin: 0 auto;
+		}
+        col-md-6{
+		</style>
 	</head>
 	<body>
 		<div class="container">
-			<div class="header clearfix">
-				<h2 class="text-muted text-center">Fortschritt</h2>
-			</div>
-			<div class="jumbotron" id="emojitron">
+			<div class="jumbotron" id="header">
+          <img src="http://www.jungiandreamwork.co.uk/800x100sun.JPG" alt="Logo">
+          </div>
+			<div class="jumbotron" id="progresstron">
                 <div class="text-center">
                     Aktueller Fortschritt:<span id="progress_abs"></span>
                 </div>
-                <div id="progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 8.1%; height: 30px; font-size: 22px; padding-top:6px; background-color: #ff8800">
-			        <span>0%</span>
-		        </div>
+                <div id="progress-bar">
+                	<div id="progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+			        <span  style="padding-left: 3px">0%</span>
+		        	</div>
+                </div>
 			</div>
+            <div class="col-md-6" id="infoblock">
+            <div class="jumbotron text-center" id="infotron">
+            Infos!
+            </div>
+            </div>
+            <div class="col-md-6" id="datablock">
+            <div class="jumbotron text-center" id="datatron">
+            Daten!
+            </div>
+            </div>
 		</div>
 	</body>
 </html>
