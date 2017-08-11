@@ -6,20 +6,57 @@
 		<script type="text/javascript">
         
 $(document).ready(function() {
-    const goal = 260;
+    const goal = 50;
     const interval = 2000
 
     var show_progress = function(progress_json) {
-    	console.log('success');
-    	console.log(progress_json);
     	var progress_abs = progress_json.length;
-    	var progress = progress_abs / goal * 100;
+	console.log(progress_abs);
+		
+	distance_abs = progress_abs * 42.195 / goal
+	distance_abs  = distance_abs.toFixed(2);
+	done=Math.floor(progress_abs/goal)
+	progress_abs = progress_abs%goal
+	distance = progress_abs * 42.195 / goal
+	distance  = distance.toFixed(2);
+	var progress = progress_abs / goal * 100;
     	progress = progress.toFixed(1);
-        if (progress > 0) {
-		    $('#progress').text(progress + '%');
-	    }
-		$('#progress').css('width', progress + '%');
-		$('#progress_abs').text(progress_abs + '/' + goal);
+	$('#progress').text(progress + '%');
+	$('#progress').css('width', progress + '%');
+	$('#done').text(done);
+	$('#distance').text(distance + ' km');
+	$('#distance_abs').text(distance_abs + ' km');
+
+	if (done > 0) {
+		t1 = progress_json[0].timestamp;
+		t2 = progress_json[goal-1].timestamp;
+		fastest = t2-t1 / 1000 / 60 // mins		
+
+		for (i = 1; i < done; i++) { 
+    			t1 = progress_json[goal*i].timestamp;
+    			t2 = progress_json[goal*(i+1)-1].timestamp;
+    			time = (t2-t1) / 1000 / 60 // mins
+    			if (time < fastest){
+		        	fastest = time;
+			}
+		}
+		console.log(fastest);
+		fastest_h = Math.floor(fastest / 60);
+		fastest_m = Math.floor(fastest % 60);
+		if (fastest_h < 10){
+			fastest_h = '0' + fastest_h.toString();
+		}
+		else{
+			fastest_h = fastest_h.toString();
+		}
+		if (fastest_m < 10){
+			fastest_m = '0' + fastest_m.toString();
+		}
+		else{
+			fastest_m = fastest_m.toString();
+		}
+		$('#fastest').text(fastest_h + ':' + fastest_m);
+	}	
     };
 
     var id = setInterval(update_progress, interval);
@@ -29,11 +66,15 @@ $(document).ready(function() {
 });
 		</script>
         <style>
+	body {
+	    background-color: #FFF2CC;
+	}
         #progresstron {
             font-size: 32px;
+	    padding: 40px;
         }
-		#progress {
-        	width: 34.5%;
+	#progress {
+            width: 0%;
             color:black;
             height: 30px;
             font-size: 22px;
@@ -52,6 +93,7 @@ $(document).ready(function() {
             box-shadow: #000000;
         }
         #header{
+		margin-top: 30px;
         	padding-top: 10px;
         	padding-bottom: 10px;
         }
@@ -64,45 +106,85 @@ $(document).ready(function() {
         }
         #datatron{
             background-size: cover;
-            padding: 10px;;
+            padding: 10px;
+            background-size: cover;
+    	    background: contain;
+    	    width: 100%;
         }
         #datablock{        	
             padding-right:0px;
         }
         img {
-    		width: 830px;
+    	    width: 830px;
             height: 130px;
             display: block;
-    		margin: 0 auto;
-		}
-        col-md-6{
-		</style>
+    	    margin: 0 auto;
+	}
+        table{
+        	border-collapse: separate;
+        	border-spacing: 10px;
+        }
+	.container {
+		width: 80%;
+	}
+	</style>
 	</head>
 	<body>
 		<div class="container">
 			<div class="jumbotron" id="header">
-          <img src="http://www.jungiandreamwork.co.uk/800x100sun.JPG" alt="Logo">
-          </div>
+          			<img src="static/img/logo_wide.png" alt="Logo">
+          		</div>
 			<div class="jumbotron" id="progresstron">
-                <div class="text-center">
-                    Aktueller Fortschritt:<span id="progress_abs"></span>
-                </div>
-                <div id="progress-bar">
-                	<div id="progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-			        <span  style="padding-left: 3px">0%</span>
-		        	</div>
-                </div>
+                		<div class="text-center">
+                    			Aktueller Fortschritt:<span id="progress_abs"></span>
+                		</div>
+                		<div id="progress-bar">
+                			<div id="progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+			        		<span  style="padding-left: 3px">0%</span>
+		        		</div>
+                		</div>
 			</div>
-            <div class="col-md-6" id="infoblock">
-            <div class="jumbotron text-center" id="infotron">
-            Infos!
-            </div>
-            </div>
-            <div class="col-md-6" id="datablock">
-            <div class="jumbotron text-center" id="datatron">
-            Daten!
-            </div>
-            </div>
+            		<div class="col-xs-8" id="infoblock">
+            			<div class="jumbotron" id="infotron">
+            				<div  style="allign: left; font-size: 40px; font-weight: bold; text-decoration:underline">
+                	    		Info:
+            				</div>
+            				<div style="allign: left; font-size: 40px">
+						Dieser Treppenabschnitt zwischen Erdgeschoss und Obergeschoss ist eine Marathon-Teilstrecke. <br>
+						Jedes Mal hoch steigen z&aumlhlt als Beitrag, um gemeinsam das Marathon-Ziel (42,195 km) zu erreichen. <br>
+						Und f&oumlrdert gleichzeitig die eigene Gesundheit.
+            				</div>
+            			</div>
+            		</div>
+            		<div class="col-xs-4" id="datablock">
+            			<div class="jumbotron" id="datatron">
+					<div  style="allign: left; font-size: 36px; font-weight: bold; text-decoration:underline">
+                	    		Bisherige Erfolge:
+            				</div>
+            	        		<table style="font-size: 36px !important">
+        					<tr>
+        						<th>Marathons<br>vollendet</th>
+        						<th> :</th>
+        						<th id="done">0</th>
+      						</tr>
+        					<tr>
+        						<th>Aktuelle<br>Distanz</th>
+        						<th> :</th>
+        						<th id="distance">0 km</th>
+      						</tr>
+        					<tr>
+        						<th>Gesamte<br>Distanz</th>
+        						<th> :</th>
+        						<th id="distance_abs">0 km</th>
+      						</tr>
+        					<tr>
+        						<th>Schnellster<br>Marathon</th>
+        						<th> :</th>
+        						<th id="fastest">00:00</th>
+      						</tr>
+        	                	</table>
+        	    		</div>
+        	    	</div>
 		</div>
 	</body>
 </html>
