@@ -17,9 +17,10 @@ DEBUG = False
 LIGHT = True
 HOST = '169.254.214.44'
 PORT = 2003
+light = 0
 
 # LED strip configuration:
-LED_COUNT      = 30
+LED_COUNT      = 150
 LED_PIN        = 18
 LED_FREQ_HZ    = 800000
 LED_DMA        = 5
@@ -54,12 +55,33 @@ class Database(object):
         cursor.execute('INSERT OR IGNORE INTO entry VALUES (?, ?, ?)', [timestamp, count, type])
         cnx.commit()
 
+def slow_light(strip, color, width = 10, wait_ms = 600):
+    while True:
+        if light == 0:
+            for i in range(0,width):
+                if light == 0:
+                    if strip.numPixels()%width == i:
+                        strip.setPixelColor(strip.numPixels()-1, 0)
+                    for j in range(i, strip.numPixels(), width):
+                        strip.setPixelColor(j, color)
+                        strip.setPixelColor(j-1, 0)
+                    strip.show()
+                    time.sleep(wait_ms/1000.0)
+        else:
+            time.sleep(2)
+
+
 		
 def running_light(strip, color, width = 7, wait_ms = 100):
     '''
     Activates the running light on the LED strip
     '''
     print('running light')
+    global light
+    light = light +1
+    for i in range(0, strip.numPixels()-1):
+        strip.setPixelColor(i,0)
+    strip.show()
     for i in range(1-width, strip.numPixels()+8):
         if i-1 >= 0 and i-1 < strip.numPixels():
             strip.setPixelColor(i-1, Color(126,0,0))
@@ -85,13 +107,7 @@ def running_light(strip, color, width = 7, wait_ms = 100):
         time.sleep(wait_ms/1000.0)
     strip.setPixelColor(strip.numPixels()-1, 0)
     strip.show()
-
-
-def passive_light(strip, color, width = 20, wait_ms = 250):
-    '''
-    Passive light for when nobody is tanking the stairs
-    '''
-    pos = 0
+    light = light-1
 
 
 def main():
@@ -112,6 +128,7 @@ def main():
             print str(e)
             time.sleep(2)
     output = None
+    thread.start_new_thread( slow_light, (strip, Color(0,255,0)))
     if DEBUG:
         output = open(name='stairs.csv', mode='w', buffering=0)
         writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
