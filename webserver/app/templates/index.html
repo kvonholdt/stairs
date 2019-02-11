@@ -1,190 +1,252 @@
 <html>
 	<head>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
 		<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 		<script type="text/javascript">
         
 $(document).ready(function() {
-    const goal = 50;
-    const interval = 2000
+	const goal = 1406;
+	const interval = 2000;
+	const imgs = 141;
 
-    var show_progress = function(progress_json) {
-    	var progress_abs = progress_json.length;
-	console.log(progress_abs);
+	var show_progress = function(progress_json) {
+		var progress_abs = progress_json.length;
+		//var progress_abs = 0;
+		console.log(progress_abs);
 		
-	distance_abs = progress_abs * 42.195 / goal
-	distance_abs  = distance_abs.toFixed(2);
-	done=Math.floor(progress_abs/goal)
-	progress_abs = progress_abs%goal
-	distance = progress_abs * 42.195 / goal
-	distance  = distance.toFixed(2);
-	var progress = progress_abs / goal * 100;
-    	progress = progress.toFixed(1);
-	$('#progress').text(progress + '%');
-	$('#progress').css('width', progress + '%');
-	$('#done').text(done);
-	$('#distance').text(distance + ' km');
-	$('#distance_abs').text(distance_abs + ' km');
 
-	if (done > 0) {
-		t1 = progress_json[0].timestamp;
-		t2 = progress_json[goal-1].timestamp;
-		fastest = t2-t1 / 1000 / 60 // mins		
+		distance_abs = progress_abs * 42.195 / goal
+		distance_abs  = distance_abs.toFixed(1);
+		done=Math.floor(progress_abs/goal)
+		progress_abs = progress_abs%goal
+		distance = progress_abs * 42.195 / goal
+		distance  = distance.toFixed(1);
+		var progress = progress_abs / goal * 100;
 
-		for (i = 1; i < done; i++) { 
-    			t1 = progress_json[goal*i].timestamp;
-    			t2 = progress_json[goal*(i+1)-1].timestamp;
-    			time = (t2-t1) / 1000 / 60 // mins
-    			if (time < fastest){
-		        	fastest = time;
+		setupProgress(progress);
+
+		progress = progress.toFixed(1);
+
+		$('#progress').text(progress + '%');
+		$('#progress').css('width', progress + '%');
+		$('#done').text(done);
+		$('#distance').text(distance + ' km');
+		$('#distance_abs').text(distance_abs + ' km');
+
+		if (done > 0) {
+			t1 = progress_json[0].timestamp;
+			t2 = progress_json[goal-1].timestamp;
+			fastest = t2-t1 / 1000 / 60 // mins		
+
+			for (i = 1; i < done; i++) { 
+    				t1 = progress_json[goal*i].timestamp;
+    				t2 = progress_json[goal*(i+1)-1].timestamp;
+    				time = (t2-t1) / 1000 / 60 // mins
+    				if (time < fastest){
+		        		fastest = time;
+				}
 			}
-		}
-		console.log(fastest);
-		fastest_h = Math.floor(fastest / 60);
-		fastest_m = Math.floor(fastest % 60);
-		if (fastest_h < 10){
-			fastest_h = '0' + fastest_h.toString();
-		}
-		else{
-			fastest_h = fastest_h.toString();
-		}
-		if (fastest_m < 10){
-			fastest_m = '0' + fastest_m.toString();
-		}
-		else{
-			fastest_m = fastest_m.toString();
-		}
-		$('#fastest').text(fastest_h + ':' + fastest_m);
-	}	
-    };
+			console.log(fastest);
+			fastest_h = Math.floor(fastest / 60);
+			fastest_m = Math.floor(fastest % 60);
+			if (fastest_h >= 100){
+				$('#fastest').text('>100 h');
+			} else{
+				if (fastest_h < 10){
+					fastest_h = '0' + fastest_h.toString();
+				}else{
+					fastest_h = fastest_h.toString();
+				}
+				if (fastest_m < 10){
+					fastest_m = '0' + fastest_m.toString();
+				}else{
+					fastest_m = fastest_m.toString();
+				}
+				$('#fastest').text(fastest_h + 'h ' + fastest_m + 'min');
+			}
+		}	
+	};
 
-    var id = setInterval(update_progress, interval);
-    function update_progress(){
-        $.getJSON('/entries_by_type?type=stairs', show_progress);
-    }
+	function setupProgress(progress) {
+		$('#progress_percentage').text(' ' + progress.toFixed(1).toString() + '%');
+
+		number = Math.ceil(imgs * progress/100);
+		number = imgs - number;
+		map_number = number.toString();
+		if(map_number.length == 1){
+			map_number = "00".concat(map_number);
+		} else if(map_number.length == 2){
+			map_number = "0".concat(map_number);
+		}
+		html = '<img src="static/img/map'.concat(map_number, '.png" alt="Map" id="map">');
+		document.getElementById("progress-bar").innerHTML = html;
+	};
+
+	var id = setInterval(update_progress, interval);
+	function update_progress(){
+		$.getJSON('/entries_by_type?type=stairs', show_progress);
+	}
 });
 		</script>
-        <style>
+	<style>
 	body {
-	    background-color: #FFF2CC;
+		background-color: #FFF2CC;
 	}
-        #progresstron {
-            font-size: 32px;
-	    padding: 40px;
-        }
+	.jumbotron{
+		background-color: white;
+		margin-bottom: 40px;
+	}
+	.jumbotron p{
+		font-size: 32px;
+	}
+	#progresstron {
+		font-size: 34px;
+		font-weight: bold;
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
 	#progress {
-            width: 0%;
-            color:black;
-            height: 30px;
-            font-size: 22px;
-            padding-top: 6px;
-            background-color: #ffd200;            
-        }
-        #progress-bar {
-            border-style: solid;
-            border-width: 2px;
-            border-color: #ffd200;
-            height: 32px;
-            border-bottom-left-radius: 4px;
-            border-bottom-right-radius: 4px;
-            border-top-left-radius: 4px;
-            border-top-right-radius: 4px;
-            box-shadow: #000000;
-        }
-        #header{
-		margin-top: 30px;
-        	padding-top: 10px;
-        	padding-bottom: 10px;
-        }
-        #infotron{
-            background-size: cover;
-            padding: 10px;
-        }
-        #infoblock{        	
-            padding-left:0px;
-        }
-        #datatron{
-            background-size: cover;
-            padding: 10px;
-            background-size: cover;
-    	    background: contain;
-    	    width: 100%;
-        }
-        #datablock{        	
-            padding-right:0px;
-        }
-        img {
-    	    width: 830px;
-            height: 130px;
-            display: block;
-    	    margin: 0 auto;
+		width: 0%;
+		color:black;
+		height: 30px;
+		font-size: 22px;
+		padding-top: 6px;
+		background-color: #ffd200;            
 	}
-        table{
-        	border-collapse: separate;
-        	border-spacing: 10px;
-        }
+	#progress-bar {
+		border-style: solid;
+		border-width: 4px;
+		border-color: #ffd200;
+		height: auto;
+		border-bottom-left-radius: 4px;
+		border-bottom-right-radius: 4px;
+		border-top-left-radius: 4px;
+		border-top-right-radius: 4px;
+		box-shadow: #000000;
+	}
+	#header{
+		margin-top: 20px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+	}
+	#infotron{
+		background-size: cover;
+		padding: 5px;
+		line-height: 1.1;
+	}
+	#infoblock{        	
+		padding-right:10px;            
+		padding-left:0px
+	}
+	#datatron{
+		margin-bottom: 20px;
+		background-size: cover;
+		padding: 5px;
+		padding-right: 0px;
+		background-size: cover;
+		background: contain;
+		width: 100%;
+		line-height: 1.1;
+	}
+	#datablock{
+		padding-right:0px;            
+		padding-left:10px;
+	}
+	#offistron{
+		padding-left: 0px;
+		padding-right: 0px;
+		padding-top: 14px;
+		padding-bottom: 14px;
+	}
+	#offisblock{
+		padding-right:0px;            
+		padding-left:10px;
+	}
+	#header_img {
+		width: 700px;
+		height: 110px;
+		display: block;
+		margin: 0 auto;
+	}
+	#map{
+		width: 100%;
+		display: block;
+		margin: 0 auto;
+	}
+	#offis_img {
+		width: 200px;
+		display: block;
+		margin: 0 auto;
+	}
+	table{
+		border-collapse: separate;
+		border-spacing: 4px;
+	}
 	.container {
-		width: 80%;
+		width: 100%;
 	}
 	</style>
 	</head>
 	<body>
-		<div class="container">
+		<div class="container" style="padding-left: 20px; padding-right: 20px">
 			<div class="jumbotron" id="header">
-          			<img src="static/img/logo_wide.png" alt="Logo">
-          		</div>
-			<div class="jumbotron" id="progresstron">
-                		<div class="text-center">
-                    			Aktueller Fortschritt:<span id="progress_abs"></span>
-                		</div>
-                		<div id="progress-bar">
-                			<div id="progress" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-			        		<span  style="padding-left: 3px">0%</span>
-		        		</div>
-                		</div>
+				<img src="static/img/logo_wide.png" alt="Logo" id="header_img">
 			</div>
-            		<div class="col-xs-8" id="infoblock">
-            			<div class="jumbotron" id="infotron">
-            				<div  style="allign: left; font-size: 40px; font-weight: bold; text-decoration:underline">
-                	    		Info:
-            				</div>
-            				<div style="allign: left; font-size: 40px">
-						Dieser Treppenabschnitt zwischen Erdgeschoss und Obergeschoss ist eine Marathon-Teilstrecke. <br>
-						Jedes Mal hoch steigen z&aumlhlt als Beitrag, um gemeinsam das Marathon-Ziel (42,195 km) zu erreichen. <br>
-						Und f&oumlrdert gleichzeitig die eigene Gesundheit.
-            				</div>
-            			</div>
-            		</div>
-            		<div class="col-xs-4" id="datablock">
-            			<div class="jumbotron" id="datatron">
-					<div  style="allign: left; font-size: 36px; font-weight: bold; text-decoration:underline">
-                	    		Bisherige Erfolge:
-            				</div>
-            	        		<table style="font-size: 36px !important">
-        					<tr>
-        						<th>Marathons<br>vollendet</th>
-        						<th> :</th>
-        						<th id="done">0</th>
-      						</tr>
-        					<tr>
-        						<th>Aktuelle<br>Distanz</th>
-        						<th> :</th>
-        						<th id="distance">0 km</th>
-      						</tr>
-        					<tr>
-        						<th>Gesamte<br>Distanz</th>
-        						<th> :</th>
-        						<th id="distance_abs">0 km</th>
-      						</tr>
-        					<tr>
-        						<th>Schnellster<br>Marathon</th>
-        						<th> :</th>
-        						<th id="fastest">00:00</th>
-      						</tr>
-        	                	</table>
-        	    		</div>
-        	    	</div>
+			<div class="jumbotron" id="progresstron">
+				<div class="text-center">
+					Aktueller Fortschritt:<span id="progress_percentage" style = "font-weight: normal"></span>
+				</div>
+				<div id="progress-bar"></div>
+			</div>
+			<div class="col-xs-8" id="infoblock">
+				<div class="jumbotron" id="infotron">
+					<div  style="allign: left; font-size: 34px; font-weight: bold; text-decoration:underline; margin-bottom: 10px">
+						Info:
+					</div>
+					<div style="allign: left">
+						<p>Dieser Treppenabschnitt zwischen Erdgeschoss und Obergeschoss ist eine Marathon-Teilstrecke. </p>
+						<p>Jedes Mal hoch steigen z&aumlhlt als Beitrag, um gemeinsam das Marathon-Ziel (42,195 km) zu erreichen. </p>
+						<p>Gleichzeitig wird die eigene Gesundheit gef&oumlrdert, da Treppensteigen eine ideale M&oumlglichkeit bietet, das w&oumlchentliche Volumen an k&oumlrperlicher Aktivit&aumlt mit kurzen Einheiten zu steigern.</p>
+					</div>
+				</div>
+			</div>
+			<div class="col-xs-4" id="datablock">
+				<div class="jumbotron" id="datatron">
+					<div  style="allign: left; font-size: 34px; font-weight: bold; text-decoration:underline">
+						Bisherige Erfolge:
+					</div>
+					<table style="font-size: 28px !important">
+						<tr>
+							<th>Marathons<br>vollendet</th>
+							<th> :</th>
+							<th id="done">0</th>
+						</tr>
+						<tr>
+							<th>Aktuelle<br>Distanz</th>
+							<th> :</th>
+							<th id="distance">0 km</th>
+						</tr>
+						<tr>
+							<th>Gesamte<br>Distanz</th>
+							<th> :</th>
+							<th id="distance_abs">0 km</th>
+						</tr>
+						<tr>
+							<th>Schnellster<br>Marathon</th>
+							<th> :</th>
+							<th id="fastest">--:--</th>
+						</tr>
+					</table>
+				</div>
+			</div>
+			<div class="col-xs-4" id="offisblock">
+				<div class="jumbotron" id="offistron">
+					<img src="static/img/offis.png" alt="OFFIS" id="offis_img">
+				</div>
+			</div>
 		</div>
 	</body>
 </html>

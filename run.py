@@ -4,7 +4,7 @@ import socket
 import sqlite3
 import sys
 import time
-import thread
+import _thread
 import requests
 import json
 
@@ -13,7 +13,7 @@ from datetime import datetime
 from gpiozero import MotionSensor
 from neopixel import *
 
-DEBUG = False
+DEBUG = True
 LIGHT = True
 HOST = '169.254.214.44'
 PORT = 2003
@@ -32,7 +32,7 @@ LED_STRIP      = ws.WS2812_STRIP
 type = 'stairs'
 url = 'http://srvgvm18.offis.uni-oldenburg.de:8443/entry'
 
-print'start stairs programm'
+#print'start stairs programm'
 
 class Database(object):
     '''
@@ -76,7 +76,7 @@ def running_light(strip, color, width = 7, wait_ms = 100):
     '''
     Activates the running light on the LED strip
     '''
-    print('running light')
+    #print('running light')
     global light
     light = light +1
     for i in range(0, strip.numPixels()-1):
@@ -111,24 +111,24 @@ def running_light(strip, color, width = 7, wait_ms = 100):
 
 
 def main():
-    print'main started'
+    #print'main started'
     strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL, LED_STRIP)
     strip.begin()
     logging.basicConfig(filename='stairs.log', level=logging.INFO, format='%(asctime)s %(name)-15s %(levelname)-8s %(processName)-10s %(message)s')
     logging.info('start scanning')
     first_pir = MotionSensor(4)
     second_pir = MotionSensor(17)
-    print'starting socket'
+    #print'starting socket'
     while True:
         try:
             s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             s.connect((HOST,PORT))
             break
-        except socket.error,e:
-            print str(e)
+        except socket.error as e:
+            #print str(e)
             time.sleep(2)
     output = None
-    thread.start_new_thread( slow_light, (strip, Color(0,255,0)))
+    _thread.start_new_thread( slow_light, (strip, Color(0,255,0)))
     if DEBUG:
         output = open(name='stairs.csv', mode='w', buffering=0)
         writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -148,9 +148,9 @@ def main():
                         payload = "|".join([str(timestamp), '1', type])
                         try:
                             s.send(payload)
-                            print'payload sent'
+                            #print'payload sent'
                         except socket.error:
-                            print'host not reachable, saving locally'
+                            #print'host not reachable, saving locally'
                             db.save_entry(timestamp, 1)
                     time.sleep(.2)
                    # if DEBUG:
@@ -158,7 +158,7 @@ def main():
                    # else:
                    #     db.save_entry(timestamp, 1)
                     if LIGHT:
-                        thread.start_new_thread( running_light, (strip, Color(255, 0, 0)))
+                        _thread.start_new_thread( running_light, (strip, Color(255, 0, 0)))
                 no_motion=False
             else:
                 no_motion = True
